@@ -39,6 +39,9 @@ DEFAULT_FEATURES: dict[str, bool] = {
     "night_light": True,
     "media_eligible": True,
     "ventilation_eligible": False,
+    # Safety default: the engine evaluates intent but does not call services
+    # itself. Turn this on (or let the universal_controller blueprint act).
+    "auto_actuate": False,
 }
 
 POSTURE_CHOICES = ("morning", "daylight", "evening", "night")

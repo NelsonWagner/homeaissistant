@@ -70,7 +70,7 @@
   "entity": {
     "sensor": {
       "area_profile": {
-        "name": "{area_name} profile"
+        "name": "Profile"
       }
     },
     "event": {
@@ -84,38 +84,76 @@
       "name": "Add intent",
       "description": "Push an intent token into the registry for evaluation.",
       "fields": {
-        "area_id": { "name": "Area ID", "description": "Target area identifier." },
-        "domain": { "name": "Domain", "description": "lighting, climate, media, ventilation, or lock." },
-        "intent_type": { "name": "Intent type", "description": "active, override, or schedule." },
-        "claimant_id": { "name": "Claimant", "description": "Entity that holds this intent." },
-        "action_value": { "name": "Action value", "description": "Optional domain-specific action string." },
-        "seconds": { "name": "Seconds", "description": "0 = ephemeral, -1 = indefinite, >0 = TTL." },
-        "labels": { "name": "Labels", "description": "Optional subset of labels to target." }
+        "area_id": {
+          "name": "Area ID",
+          "description": "Target area identifier."
+        },
+        "domain": {
+          "name": "Domain",
+          "description": "lighting, climate, media, ventilation, or lock."
+        },
+        "intent_type": {
+          "name": "Intent type",
+          "description": "active, override, or schedule."
+        },
+        "claimant_id": {
+          "name": "Claimant",
+          "description": "Entity that holds this intent."
+        },
+        "action_value": {
+          "name": "Action value",
+          "description": "Optional domain-specific action string."
+        },
+        "seconds": {
+          "name": "Seconds",
+          "description": "0 = ephemeral, -1 = indefinite, >0 = TTL."
+        },
+        "labels": {
+          "name": "Labels",
+          "description": "Optional subset of labels to target."
+        }
       }
     },
     "remove_intent": {
       "name": "Remove intent",
       "description": "Remove intent tokens for a claimant.",
       "fields": {
-        "area_id": { "name": "Area ID" },
-        "claimant_id": { "name": "Claimant" },
-        "domain": { "name": "Domain", "description": "Optional; omit to remove all domains." },
-        "intent_type": { "name": "Intent type", "description": "Optional; omit to remove all types." }
+        "area_id": {
+          "name": "Area ID"
+        },
+        "claimant_id": {
+          "name": "Claimant"
+        },
+        "domain": {
+          "name": "Domain",
+          "description": "Optional; omit to remove all domains."
+        },
+        "intent_type": {
+          "name": "Intent type",
+          "description": "Optional; omit to remove all types."
+        }
       }
     },
     "refresh_profile": {
       "name": "Refresh profile",
       "description": "Rebuild the area profile from entity registry and labels.",
       "fields": {
-        "area_id": { "name": "Area ID" }
+        "area_id": {
+          "name": "Area ID"
+        }
       }
     },
     "set_posture": {
       "name": "Set posture",
       "description": "Set or clear manual posture override for a room.",
       "fields": {
-        "area_id": { "name": "Area ID" },
-        "posture": { "name": "Posture", "description": "morning, daylight, evening, night, or empty for auto." }
+        "area_id": {
+          "name": "Area ID"
+        },
+        "posture": {
+          "name": "Posture",
+          "description": "morning, daylight, evening, night, or empty for auto."
+        }
       }
     }
   }

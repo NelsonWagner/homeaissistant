@@ -189,10 +189,12 @@ class ProfileBuilder:
         current_posture: str | None,
     ) -> tuple[dict[str, Any], dict[str, Any]]:
         """Return (state_dict, attributes_dict)."""
+        from homeassistant.helpers import device_registry as dr
         from homeassistant.helpers import entity_registry as er
         from homeassistant.helpers import label_registry as lr
 
         registry = er.async_get(self.hass)
+        device_reg = dr.async_get(self.hass)
         label_reg = lr.async_get(self.hass)
         label_ids_by_name = {
             label.name: label.label_id for label in label_reg.async_list_labels()
@@ -203,7 +205,12 @@ class ProfileBuilder:
         }
 
         for entry in registry.entities.values():
-            if entry.area_id != area_id:
+            # Entities can inherit their area from the device they belong to.
+            entity_area = entry.area_id
+            if entity_area is None and entry.device_id:
+                device = device_reg.async_get(entry.device_id)
+                entity_area = device.area_id if device else None
+            if entity_area != area_id:
                 continue
             entity_label_ids = set(entry.labels or [])
             for label_name, topo_key in role_mappings.items():
@@ -239,6 +246,10 @@ class ProfileBuilder:
             attributes[f"{ATTR_FEAT_PREFIX}{feat_key}"] = feat_val
 
         attributes[ATTR_ACTIVE_TOKENS] = token_debug
+        if current_posture:
+            attributes["posture"] = current_posture
+        else:
+            attributes["posture"] = None
 
         return state_dict, attributes
 
@@ -328,12 +339,19 @@ class IntentEvaluator:
         target_state: dict[str, Any],
         labels: list[str] | None,
     ) -> None:
+        from homeassistant.helpers import device_registry as dr
         from homeassistant.helpers import entity_registry as er
 
         registry = er.async_get(self.hass)
+        device_reg = dr.async_get(self.hass)
         light_entities: list[str] = []
         for entry in registry.entities.values():
-            if entry.area_id != area_id:
+            # Entities can inherit their area from the device they belong to.
+            entity_area = entry.area_id
+            if entity_area is None and entry.device_id:
+                device = device_reg.async_get(entry.device_id)
+                entity_area = device.area_id if device else None
+            if entity_area != area_id:
                 continue
             if not entry.entity_id.startswith("light."):
                 continue
@@ -540,6 +558,7 @@ class ContextCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             self.current_posture,
             presence,
             doors,
+            apply_actions=bool(self.features.get("auto_actuate", False)),
         )
 
     def _schedule_expiry(self, token_id: str, expires_at: datetime) -> None:

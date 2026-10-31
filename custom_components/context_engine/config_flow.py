@@ -11,7 +11,7 @@ import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.components import mqtt
 from homeassistant.core import HomeAssistant, callback
-from homeassistant.data_entry_flow import FlowResult
+from homeassistant.config_entries import ConfigFlowResult as FlowResult
 from homeassistant.helpers import area_registry as ar
 from homeassistant.helpers.selector import (
     AreaSelector,
@@ -19,7 +19,6 @@ from homeassistant.helpers.selector import (
     BooleanSelector,
     NumberSelector,
     NumberSelectorMode,
-    SelectOption,
     SelectSelector,
     SelectSelectorConfig,
     SelectSelectorMode,
@@ -62,10 +61,10 @@ def _policy_from_brightness_inputs(user_input: dict[str, Any]) -> dict[str, dict
     return policy
 
 
-def _get_area_options(hass: HomeAssistant) -> list[SelectOption]:
+def _get_area_options(hass: HomeAssistant) -> list[dict[str, str]]:
     area_reg = ar.async_get(hass)
     return [
-        SelectOption(value=area.id, label=area.name)
+        {"value": area.id, "label": area.name}
         for area in area_reg.async_list_areas()
     ]
 
@@ -207,6 +206,7 @@ class ContextEngineConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                         vol.Required("night_light", default=True): BooleanSelector(),
                         vol.Required("media_eligible", default=True): BooleanSelector(),
                         vol.Required("ventilation_eligible", default=False): BooleanSelector(),
+                        vol.Required("auto_actuate", default=False): BooleanSelector(),
                         vol.Required(
                             "mqtt_enabled",
                             default=bool(mqtt.async_get(self.hass)),
@@ -217,11 +217,9 @@ class ContextEngineConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                         ): SelectSelector(
                             SelectSelectorConfig(
                                 options=[
-                                    SelectOption(value="sun", label="Sun elevation"),
-                                    SelectOption(value="schedule", label="Schedule"),
-                                    SelectOption(
-                                        value="input_select", label="Input select"
-                                    ),
+                                    {"value": "sun", "label": "Sun elevation"},
+                                    {"value": "schedule", "label": "Schedule"},
+                                    {"value": "input_select", "label": "Input select"},
                                 ],
                                 mode=SelectSelectorMode.DROPDOWN,
                             )
@@ -235,6 +233,7 @@ class ContextEngineConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             "night_light": user_input["night_light"],
             "media_eligible": user_input["media_eligible"],
             "ventilation_eligible": user_input["ventilation_eligible"],
+            "auto_actuate": user_input.get("auto_actuate", False),
         }
         self._shared[CONF_MQTT_ENABLED] = user_input["mqtt_enabled"]
         self._shared[CONF_POSTURE_SOURCE] = user_input[CONF_POSTURE_SOURCE]
@@ -316,6 +315,7 @@ class ContextEngineOptionsFlow(config_entries.OptionsFlow):
                 "night_light": user_input["night_light"],
                 "media_eligible": user_input["media_eligible"],
                 "ventilation_eligible": user_input["ventilation_eligible"],
+                "auto_actuate": user_input.get("auto_actuate", False),
             }
             options[CONF_POSTURE_SOURCE] = user_input[CONF_POSTURE_SOURCE]
 
@@ -358,6 +358,9 @@ class ContextEngineOptionsFlow(config_entries.OptionsFlow):
                 vol.Required("media_eligible", default=features["media_eligible"]): BooleanSelector(),
                 vol.Required(
                     "ventilation_eligible", default=features["ventilation_eligible"]
+                ): BooleanSelector(),
+                vol.Required(
+                    "auto_actuate", default=features.get("auto_actuate", False)
                 ): BooleanSelector(),
                 vol.Required(
                     "mqtt_enabled",

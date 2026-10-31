@@ -3,9 +3,8 @@
   "name": "Context Engine",
   "codeowners": ["@nelson"],
   "config_flow": true,
-  "dependencies": ["mqtt"],
-  "documentation": "https://github.com/nelson/homeaissistant",
+  "documentation": "https://github.com/NelsonWagner/homeaissistant",
   "iot_class": "local_push",
   "requirements": [],
-  "version": "0.1.0"
+  "version": "0.1.1"
 }

@@ -42,11 +42,19 @@ class ContextProfileSensor(CoordinatorEntity[ContextCoordinator], SensorEntity):
 
     @property
     def native_value(self) -> str:
-        return self.coordinator.get_profile_state()
+        # HA caps state strings at 255 chars, so expose the posture as the
+        # primary state and keep the full profile in the attributes.
+        attrs = self.coordinator.get_profile_attributes()
+        posture = attrs.get("posture")
+        if posture:
+            return str(posture)
+        return "ready"
 
     @property
     def extra_state_attributes(self) -> dict:
-        return self.coordinator.get_profile_attributes()
+        attrs = dict(self.coordinator.get_profile_attributes())
+        attrs["profile_json"] = self.coordinator.get_profile_state()
+        return attrs
 
     @callback
     def _handle_coordinator_update(self) -> None:

@@ -49,10 +49,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
     if not hass.services.has_service(DOMAIN, "add_intent"):
-        async_register_add_intent(hass)
-        async_register_remove_intent(hass)
-        async_register_refresh_profile(hass)
-        async_register_set_posture(hass)
+        await async_register_add_intent(hass)
+        await async_register_remove_intent(hass)
+        await async_register_refresh_profile(hass)
+        await async_register_set_posture(hass)
 
     return True
 
