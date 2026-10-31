@@ -1,0 +1,27 @@
+blueprint:
+  name: Context Engine — Janitor Cleanup
+  description: Periodically refresh profiles and rely on coordinator token expiry pruning.
+  domain: automation
+  source_url: https://github.com/nelson/homeaissistant
+  author: Context Engine
+  input:
+    area_ids:
+      name: Area IDs
+      description: List of area IDs to maintain (comma-separated).
+      default: living_room
+      selector:
+        text:
+  trigger:
+    - platform: time_pattern
+      seconds: "/60"
+    - platform: event
+      event_type: context_engine_intent_evaluated
+  action:
+    - repeat:
+        for_each: "{{ area_ids.split(',') | map('trim') | list }}"
+        sequence:
+          - service: context_engine.refresh_profile
+            data:
+              area_id: "{{ repeat.item }}"
+  mode: queued
+  max: 5

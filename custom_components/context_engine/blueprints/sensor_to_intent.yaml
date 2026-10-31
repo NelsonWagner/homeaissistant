@@ -1,0 +1,102 @@
+blueprint:
+  name: Context Engine — Sensor to Intent
+  description: Translate labeled entity state changes into context_engine.add_intent calls.
+  domain: automation
+  source_url: https://github.com/nelson/homeaissistant
+  author: Context Engine
+  input:
+    area_id:
+      name: Area ID
+      description: Room area identifier matching the Context Engine profile.
+      selector:
+        text:
+    presence_entity:
+      name: Presence entity
+      selector:
+        entity:
+          domain: binary_sensor
+    door_entity:
+      name: Door entity
+      default: []
+      selector:
+        entity:
+          domain: binary_sensor
+    media_entity:
+      name: Media player entity
+      default: []
+      selector:
+        entity:
+          domain: media_player
+    override_entity:
+      name: Override switch entity
+      default: []
+      selector:
+        entity:
+          domain: switch
+  trigger:
+    - platform: state
+      entity_id: !input presence_entity
+      from: "off"
+      to: "on"
+    - platform: state
+      entity_id: !input door_entity
+    - platform: state
+      entity_id: !input media_entity
+      to: "playing"
+    - platform: state
+      entity_id: !input override_entity
+      to: "on"
+  variables:
+    area: !input area_id
+    presence: !input presence_entity
+    door: !input door_entity
+    media: !input media_entity
+    override_sw: !input override_entity
+  action:
+    - choose:
+        - conditions:
+            - condition: template
+              value_template: "{{ trigger.entity_id == presence }}"
+          sequence:
+            - service: context_engine.add_intent
+              data:
+                area_id: "{{ area }}"
+                domain: lighting
+                intent_type: active
+                claimant_id: "{{ trigger.entity_id }}"
+                seconds: 300
+        - conditions:
+            - condition: template
+              value_template: "{{ door != [] and trigger.entity_id == door }}"
+          sequence:
+            - service: context_engine.add_intent
+              data:
+                area_id: "{{ area }}"
+                domain: lock
+                intent_type: active
+                claimant_id: "{{ trigger.entity_id }}"
+                seconds: 300
+        - conditions:
+            - condition: template
+              value_template: "{{ media != [] and trigger.entity_id == media }}"
+          sequence:
+            - service: context_engine.add_intent
+              data:
+                area_id: "{{ area }}"
+                domain: media
+                intent_type: active
+                claimant_id: "{{ trigger.entity_id }}"
+                seconds: -1
+        - conditions:
+            - condition: template
+              value_template: "{{ override_sw != [] and trigger.entity_id == override_sw }}"
+          sequence:
+            - service: context_engine.add_intent
+              data:
+                area_id: "{{ area }}"
+                domain: lighting
+                intent_type: override
+                claimant_id: "{{ trigger.entity_id }}"
+                seconds: -1
+  mode: parallel
+  max: 20

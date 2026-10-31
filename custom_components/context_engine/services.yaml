@@ -1,0 +1,115 @@
+add_intent:
+  name: Add intent
+  description: Push an intent token into the registry and evaluate the area.
+  fields:
+    area_id:
+      required: true
+      example: living_room
+      selector:
+        text:
+    domain:
+      required: true
+      example: lighting
+      selector:
+        select:
+          options:
+            - lighting
+            - climate
+            - media
+            - ventilation
+            - lock
+    intent_type:
+      required: true
+      example: active
+      selector:
+        select:
+          options:
+            - active
+            - override
+            - schedule
+    claimant_id:
+      required: true
+      example: binary_sensor.lr_motion
+      selector:
+        entity:
+    action_value:
+      required: false
+      example: fan_low
+      selector:
+        text:
+    seconds:
+      required: true
+      example: 300
+      selector:
+        number:
+          min: -1
+          max: 86400
+          mode: box
+    labels:
+      required: false
+      example: '["light"]'
+      selector:
+        object:
+
+remove_intent:
+  name: Remove intent
+  description: Remove intent tokens for a claimant in an area.
+  fields:
+    area_id:
+      required: true
+      example: living_room
+      selector:
+        text:
+    claimant_id:
+      required: true
+      example: binary_sensor.lr_motion
+      selector:
+        entity:
+    domain:
+      required: false
+      selector:
+        select:
+          options:
+            - lighting
+            - climate
+            - media
+            - ventilation
+            - lock
+    intent_type:
+      required: false
+      selector:
+        select:
+          options:
+            - active
+            - override
+            - schedule
+
+refresh_profile:
+  name: Refresh profile
+  description: Force rebuild of an area profile sensor.
+  fields:
+    area_id:
+      required: true
+      example: living_room
+      selector:
+        text:
+
+set_posture:
+  name: Set posture
+  description: Manually set or clear the room posture override.
+  fields:
+    area_id:
+      required: true
+      example: living_room
+      selector:
+        text:
+    posture:
+      required: false
+      example: evening
+      selector:
+        select:
+          options:
+            - morning
+            - daylight
+            - evening
+            - night

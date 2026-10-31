@@ -1,0 +1,51 @@
+blueprint:
+  name: Context Engine — Universal Controller
+  description: Act on resolved intent target state from context_engine_intent_evaluated events.
+  domain: automation
+  source_url: https://github.com/nelson/homeaissistant
+  author: Context Engine
+  input:
+    area_filter:
+      name: Area ID filter
+      description: Only react to events for this area (empty = any).
+      default: ""
+      selector:
+        text:
+  trigger:
+    - platform: event
+      event_type: context_engine_intent_evaluated
+  condition:
+    - condition: template
+      value_template: >-
+        {{ area_filter == '' or trigger.event.data.area_id == area_filter }}
+  action:
+    - choose:
+        - conditions:
+            - condition: template
+              value_template: >-
+                {{ trigger.event.data.domain == 'lighting' and
+                   trigger.event.data.target_state.brightness_pct is defined }}
+          sequence:
+            - service: light.turn_on
+              target:
+                area_id: "{{ trigger.event.data.area_id }}"
+              data:
+                brightness_pct: "{{ trigger.event.data.target_state.brightness_pct }}"
+                color_temp_kelvin: "{{ trigger.event.data.target_state.color_temp_kelvin | default(3000) }}"
+        - conditions:
+            - condition: template
+              value_template: "{{ trigger.event.data.domain == 'media' }}"
+          sequence:
+            - service: media_player.media_play
+              target:
+                area_id: "{{ trigger.event.data.area_id }}"
+        - conditions:
+            - condition: template
+              value_template: >-
+                {{ trigger.event.data.domain == 'ventilation' and
+                   trigger.event.data.target_state.action is defined }}
+          sequence:
+            - service: fan.turn_on
+              target:
+                area_id: "{{ trigger.event.data.area_id }}"
+  mode: queued

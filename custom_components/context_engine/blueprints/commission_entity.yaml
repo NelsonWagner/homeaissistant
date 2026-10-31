@@ -1,0 +1,23 @@
+blueprint:
+  name: Context Engine — Commission Entity
+  description: Refresh area profiles when entity labels or area assignments change.
+  domain: automation
+  source_url: https://github.com/nelson/homeaissistant
+  author: Context Engine
+  input:
+    area_id:
+      name: Area ID
+      description: Area profile to refresh when the entity registry changes.
+      selector:
+        text:
+  trigger:
+    - platform: event
+      event_type: entity_registry_updated
+    - platform: event
+      event_type: area_registry_updated
+  action:
+    - service: context_engine.refresh_profile
+      data:
+        area_id: !input area_id
+  mode: queued
+  max: 10

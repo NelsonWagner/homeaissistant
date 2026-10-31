@@ -1,0 +1,122 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Context Engine",
+        "description": "Profile-driven room context management with intent tokens.",
+        "data": {
+          "areas": "Areas to enable"
+        }
+      },
+      "role_mappings": {
+        "title": "Role mappings",
+        "description": "Map entity labels to topology keys used in the area profile.",
+        "data": {
+          "role_mappings": "Label to topology key (JSON object)"
+        }
+      },
+      "policy": {
+        "title": "Policy defaults",
+        "description": "Default lighting targets per posture. You can refine these later in options.",
+        "data": {
+          "morning_brightness": "Morning brightness (%)",
+          "morning_color_temp": "Morning color temp (K)",
+          "daylight_brightness": "Daylight brightness (%)",
+          "daylight_color_temp": "Daylight color temp (K)",
+          "evening_brightness": "Evening brightness (%)",
+          "evening_color_temp": "Evening color temp (K)",
+          "night_brightness": "Night brightness (%)",
+          "night_color_temp": "Night color temp (K)"
+        }
+      },
+      "features": {
+        "title": "Feature flags",
+        "description": "Capabilities enabled for this room profile.",
+        "data": {
+          "lock_eligible": "Auto-lock eligible",
+          "night_light": "Night lighting",
+          "media_eligible": "Media control",
+          "ventilation_eligible": "Auto-ventilation",
+          "mqtt_enabled": "Publish MQTT discovery",
+          "posture_source": "Posture source"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Failed to connect",
+      "invalid_area": "Invalid area selected",
+      "mqtt_not_loaded": "MQTT integration is not loaded. Discovery publishing requires MQTT."
+    },
+    "abort": {
+      "already_configured": "This area is already configured"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Context Engine options",
+        "data": {
+          "role_mappings": "Role mappings (JSON)",
+          "lock_eligible": "Auto-lock eligible",
+          "night_light": "Night lighting",
+          "media_eligible": "Media control",
+          "ventilation_eligible": "Auto-ventilation",
+          "mqtt_enabled": "MQTT discovery",
+          "posture_source": "Posture source"
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "area_profile": {
+        "name": "{area_name} profile"
+      }
+    },
+    "event": {
+      "intent_evaluated": {
+        "name": "{area_name} intent evaluated"
+      }
+    }
+  },
+  "services": {
+    "add_intent": {
+      "name": "Add intent",
+      "description": "Push an intent token into the registry for evaluation.",
+      "fields": {
+        "area_id": { "name": "Area ID", "description": "Target area identifier." },
+        "domain": { "name": "Domain", "description": "lighting, climate, media, ventilation, or lock." },
+        "intent_type": { "name": "Intent type", "description": "active, override, or schedule." },
+        "claimant_id": { "name": "Claimant", "description": "Entity that holds this intent." },
+        "action_value": { "name": "Action value", "description": "Optional domain-specific action string." },
+        "seconds": { "name": "Seconds", "description": "0 = ephemeral, -1 = indefinite, >0 = TTL." },
+        "labels": { "name": "Labels", "description": "Optional subset of labels to target." }
+      }
+    },
+    "remove_intent": {
+      "name": "Remove intent",
+      "description": "Remove intent tokens for a claimant.",
+      "fields": {
+        "area_id": { "name": "Area ID" },
+        "claimant_id": { "name": "Claimant" },
+        "domain": { "name": "Domain", "description": "Optional; omit to remove all domains." },
+        "intent_type": { "name": "Intent type", "description": "Optional; omit to remove all types." }
+      }
+    },
+    "refresh_profile": {
+      "name": "Refresh profile",
+      "description": "Rebuild the area profile from entity registry and labels.",
+      "fields": {
+        "area_id": { "name": "Area ID" }
+      }
+    },
+    "set_posture": {
+      "name": "Set posture",
+      "description": "Set or clear manual posture override for a room.",
+      "fields": {
+        "area_id": { "name": "Area ID" },
+        "posture": { "name": "Posture", "description": "morning, daylight, evening, night, or empty for auto." }
+      }
+    }
+  }
+}
